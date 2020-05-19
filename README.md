@@ -1,8 +1,8 @@
-# Generic osd321mp1 Support
+# Generic osd32mp1 Support
 
-This is the base Nerves System configuration for the [osd321mp1-brk](https://octavosystems.com/octavo_products/osd32mp1-brk/)
+This is the base Nerves System configuration for the [osd32mp1-brk](https://octavosystems.com/octavo_products/osd32mp1-brk/)
 
-![osd321mp1-brk](assets/images/osd32mp1-brk.png)
+![osd32mp1-brk](assets/images/osd32mp1-brk.png)
 
 | Feature              | Description                     |
 | -------------------- | ------------------------------- |
