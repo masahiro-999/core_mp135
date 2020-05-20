@@ -36,6 +36,18 @@ If you need custom modifications to this system for your device, clone this
 repository and update as described in [Making custom
 systems](https://hexdocs.pm/nerves/systems.html#customizing-your-own-nerves-system)
 
+## Boot Jumpers
+
+The boot jumpers on the OSD32mp1-brk board should be set like this to boot from sdcard.
+(usb connector to the right of the switch)
+
+|label| | |
+|-----|-|-|
+|0    | |X|
+|1    |X| |
+|2    | |X|
+|WP   |X| |
+
 # Supported USB WiFi Devices
 
 The base image includes drivers and firmware for Ralink RT53xx (rt2800usb driver) and RealTek RTL8712U (r8712u driver) devices.
