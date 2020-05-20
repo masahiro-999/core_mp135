@@ -1,7 +1,7 @@
 defmodule NervesSystemOsd32mp1.MixProject do
   use Mix.Project
 
-  @github_organization "connorrigby"
+  @github_organization "nerves-project"
   @app :nerves_system_osd32mp1
   @version Path.join(__DIR__, "VERSION")
            |> File.read!()
@@ -59,7 +59,7 @@ defmodule NervesSystemOsd32mp1.MixProject do
 
   defp description do
     """
-    Nerves System - BeagleBone Black, BeagleBone Green, PocketBeagle and more
+    Nerves System - OSD32MP1
     """
   end
 
@@ -73,20 +73,21 @@ defmodule NervesSystemOsd32mp1.MixProject do
 
   defp package_files do
     [
-      "fwup_include",
-      "linux",
-      "rootfs_overlay",
-      "uboot",
       "busybox.fragment",
       "CHANGELOG.md",
+      "fwup_include",
       "fwup-revert.conf",
       "fwup.conf",
       "LICENSE",
+      "linux",
       "mix.exs",
       "nerves_defconfig",
+      "osd32mp1-brk.dts",
       "post-build.sh",
       "post-createfs.sh",
       "README.md",
+      "rootfs_overlay",
+      "uboot",
       "VERSION"
     ]
   end
@@ -108,7 +109,7 @@ defmodule NervesSystemOsd32mp1.MixProject do
     if function_exported?(Mix, :target, 1) do
       apply(Mix, :target, [:target])
     else
-      System.put_env("MIX_TARGET", "target")
+      System.put_env("MIX_TARGET", "osd32mp1")
     end
   end
 end
