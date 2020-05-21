@@ -1,11 +1,12 @@
-# Generic osd32mp1 Support
+# Generic OSD32MP1 Support
 
 [![CircleCI](https://circleci.com/gh/nerves-project/nerves_system_osd32mp1.svg?style=svg)](https://circleci.com/gh/nerves-project/nerves_system_osd32mp1)
 [![Hex version](https://img.shields.io/hexpm/v/nerves_system_osd32mp1.svg "Hex version")](https://hex.pm/packages/nerves_system_osd32mp1)
 
-This is the base Nerves System configuration for the [osd32mp1-brk](https://octavosystems.com/octavo_products/osd32mp1-brk/)
+This is the base Nerves System configuration for the
+[OSD32MP1-BRK](https://octavosystems.com/octavo_products/osd32mp1-brk/)
 
-![osd32mp1-brk](assets/images/osd32mp1-brk.png)
+![OSD32MP1-BRK](assets/images/osd32mp1-brk.png)
 
 | Feature              | Description                     |
 | -------------------- | ------------------------------- |
@@ -38,8 +39,9 @@ systems](https://hexdocs.pm/nerves/systems.html#customizing-your-own-nerves-syst
 
 ## Boot Jumpers
 
-The boot jumpers on the OSD32mp1-brk board should be set like this to boot from sdcard.
-(usb connector to the right of the switch)
+The boot jumpers on the OSD32MP1-BRK board should be set like this to boot from
+Micro SDCard. Orient the board so that the USB connector is to the right of the
+switch.
 
 |label| | |
 |-----|-|-|
@@ -50,11 +52,18 @@ The boot jumpers on the OSD32mp1-brk board should be set like this to boot from 
 
 # Supported USB WiFi Devices
 
-The base image includes drivers and firmware for Ralink RT53xx (rt2800usb driver) and RealTek RTL8712U (r8712u driver) devices.
+The base image includes drivers and firmware for Ralink RT53xx (rt2800usb
+driver) and RealTek RTL8712U (r8712u driver) devices.
 
-We are still working out which subset of all possible WiFi dongles to support in our images. At some point, we may have the option to support all dongles and selectively install modules at packaging time, but until then, these drivers and their associated firmware blobs add significantly to Nerves release images.
+We are still working out which subset of all possible WiFi dongles to support in
+our images. At some point, we may have the option to support all dongles and
+selectively install modules at packaging time, but until then, these drivers and
+their associated firmware blobs add significantly to Nerves release images.
 
-If you are unsure what driver your WiFi dongle requires, run Raspbian and configure WiFi for your device. At a shell prompt, run lsmod to see which drivers are loaded. Running dmesg may also give a clue. When using dmesg, reinsert the USB dongle to generate new log messages if you don't see them.
+If you are unsure what driver your WiFi dongle requires, run Debian and
+configure WiFi for your device. At a shell prompt, run lsmod to see which
+drivers are loaded. Running dmesg may also give a clue. When using dmesg,
+reinsert the USB dongle to generate new log messages if you don't see them.
 
 ## Provisioning devices
 
