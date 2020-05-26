@@ -26,6 +26,11 @@ This is the base Nerves System configuration for the
 | Bluetooth            | No                              |
 | Audio                | No                              |
 
+# WARNING
+
+This system is still considered in alpha state, expect backwards incompatible changes
+to be made
+
 # Using
 
 The most common way of using this Nerves System is create a project with `mix
