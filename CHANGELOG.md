@@ -1,5 +1,11 @@
 # Changelog
 
+## v0.2.0
+
+* Updated dependencies
+  * [nerves_system_linter v0.4.0](https://github.com/nerves-project/nerves_system_linter/releases/tag/v0.4.0)
+
+
 ## v0.1.0
 
 * Initial release
