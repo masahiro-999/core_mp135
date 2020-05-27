@@ -73,21 +73,21 @@ defmodule NervesSystemOsd32mp1.MixProject do
 
   defp package_files do
     [
-      "busybox.fragment",
-      "CHANGELOG.md",
       "fwup_include",
+      "linux",
+      "rootfs_overlay",
+      "uboot",
+      "CHANGELOG.md",
+      "extlinux.conf",
       "fwup-revert.conf",
       "fwup.conf",
       "LICENSE",
-      "linux",
       "mix.exs",
       "nerves_defconfig",
       "osd32mp1-brk.dts",
       "post-build.sh",
       "post-createfs.sh",
       "README.md",
-      "rootfs_overlay",
-      "uboot",
       "VERSION"
     ]
   end
