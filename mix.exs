@@ -91,7 +91,7 @@ defmodule NervesSystemOsd32mp1.MixProject do
   defp package do
     [
       files: package_files(),
-      licenses: ["Apache 2.0"],
+      licenses: ["Apache-2.0"],
       links: %{"GitHub" => @source_url}
     ]
   end
