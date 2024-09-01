@@ -1,8 +1,8 @@
-defmodule NervesSystemOsd32mp1.MixProject do
+defmodule CustomStm32mp135d.MixProject do
   use Mix.Project
 
-  @github_organization "nerves-project"
-  @app :nerves_system_osd32mp1
+  @github_organization "masahiro-999"
+  @app :custom_stm32mp135d
   @source_url "https://github.com/#{@github_organization}/#{@app}"
   @version Path.join(__DIR__, "VERSION")
            |> File.read!()
