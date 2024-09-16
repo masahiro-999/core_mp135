@@ -1,0 +1,11 @@
+--- a/ta/pkcs11/src/processing.h    2024-09-16 11:59:29.008320094 +0900
++++ b/ta/pkcs11/src/processing.h    2024-09-16 12:00:00.180032194 +0900
+@@ -107,7 +107,7 @@
+ /*
+  * Symmetric crypto algorithm specific functions
+  */
+-bool processing_is_tee_symm(uint32_t proc_id);
++bool processing_is_tee_symm(enum pkcs11_mechanism_id proc_id);
+
+ enum pkcs11_rc init_symm_operation(struct pkcs11_session *session,
+                                   enum processing_func function,

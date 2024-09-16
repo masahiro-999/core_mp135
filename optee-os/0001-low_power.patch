@@ -1,0 +1,116 @@
+--- a/core/arch/arm/plat-stm32mp1/pm/low_power.c	2022-05-23 15:50:25.000000000 +0800
++++ b/core/arch/arm/plat-stm32mp1/pm/low_power.c	2024-06-25 19:18:53.866041257 +0800
+@@ -365,12 +365,39 @@
+ 	io_write32(gicc_base + GICC_EOIR, it);
+ }
+ 
++#ifdef CFG_COREMP135_AXP2101
++#define PUTBYTE 1
++#define SCL_H 2,1
++#define SCL_L 2,0
++#define SDA_H 3,1
++#define SDA_L 3,0
++#define DELAY 4
++#define PUT_ACK 5,0
++const uint8_t instructions_sequence[] = {
++       SCL_H,SDA_H,10,0,
++       DELAY,255,
++       SDA_L,DELAY, 1,
++       PUTBYTE, 0x68,
++       PUT_ACK,
++       PUTBYTE, 0x10,
++       PUT_ACK,
++       PUTBYTE, 0x01,
++       PUT_ACK,
++       SCL_L,DELAY,1,SDA_L,DELAY,2,SCL_H,DELAY,1,SDA_H,
++       0,0
++};
++#endif
+ /*
+  * stm32_enter_cstop_shutdown - Shutdown CPUs to target low power mode
+  * @mode - Target low power mode
+  */
+ void __noreturn stm32_enter_cstop_shutdown(uint32_t mode)
+ {
++#ifdef CFG_COREMP135_AXP2101
++       vaddr_t gpio = (vaddr_t)phys_to_virt(0x50009000, MEM_AREA_IO_NSEC, 1024);
++       vaddr_t gpioh_rcc = (vaddr_t)phys_to_virt(0x50000000, MEM_AREA_IO_NSEC, 4096);
++       io_setbits32(gpioh_rcc + 0x770, BIT(7));
++#endif
+ #ifdef CFG_STM32MP15
+ 	if (stm32mp_supports_second_core() && (get_core_pos() == 0)) {
+ 		/* Prepare CPU reset */
+@@ -402,6 +429,64 @@
+ 		break;
+ 	}
+ 
++#ifdef CFG_COREMP135_AXP2101
++	for (int i = 0; instructions_sequence[i] != 0; i+=2)
++	{
++		switch (instructions_sequence[i])
++		{
++		case 1:
++		{
++			uint8_t val = instructions_sequence[i+1];
++			for (int j = 0; j < 8; j++)
++			{
++				io_clrbits32((vaddr_t)gpio+0x14, BIT(12));
++				udelay(1);
++				if(val&0x80)
++					io_setbits32((vaddr_t)gpio+0x14, BIT(7));
++				else
++					io_clrbits32((vaddr_t)gpio+0x14, BIT(7));
++				udelay(1);
++				io_setbits32((vaddr_t)gpio+0x14, BIT(12));
++				udelay(2);
++				val = val << 1;
++			}
++		}
++		break;
++		case 2:
++			if(instructions_sequence[i+1])
++				io_setbits32((vaddr_t)gpio+0x14, BIT(12));
++			else
++				io_clrbits32((vaddr_t)gpio+0x14, BIT(12));
++			break;
++		case 3:
++			if(instructions_sequence[i+1])
++				io_setbits32((vaddr_t)gpio+0x14, BIT(7));
++			else
++				io_clrbits32((vaddr_t)gpio+0x14, BIT(7));
++			break;
++		case 4:
++			udelay(instructions_sequence[i+1]);
++			break;
++		case 5:
++			io_clrbits32((vaddr_t)gpio+0x14, BIT(12));
++			io_setbits32((vaddr_t)gpio+0x14, BIT(7));
++			udelay(1);
++			io_setbits32((vaddr_t)gpio+0x14, BIT(12));
++			udelay(2);
++			break;
++		default:
++			io_clrbits32((vaddr_t)gpio, BIT(15)|BIT(25));
++			io_setbits32((vaddr_t)gpio, BIT(14)|BIT(24));
++			io_setbits32((vaddr_t)gpio+0x04, BIT(7)|BIT(12)); 
++			io_clrbits32((vaddr_t)gpio+0x08, BIT(14)|BIT(15)|BIT(24)|BIT(25));
++			io_clrbits32((vaddr_t)gpio+0x0c, BIT(14)|BIT(15)|BIT(24)|BIT(25));
++			io_clrbits32((vaddr_t)gpio+0x20, BIT(28)|BIT(29)|BIT(30)|BIT(31));
++			io_clrbits32((vaddr_t)gpio+0x24, BIT(16)|BIT(17)|BIT(18)|BIT(19));
++			break;
++		}
++	}
++#endif
++
+ 	panic();
+ }
+ 
+--- a/core/arch/arm/plat-stm32mp1/conf.mk	2024-06-25 18:44:52.352208848 +0800
++++ b/core/arch/arm/plat-stm32mp1/conf.mk	2024-06-25 18:49:38.593565623 +0800
+@@ -331,3 +331,6 @@
+ 
+ # Generate the STM32 files
+ CFG_STM32MP15x_STM32IMAGE ?= n
++
++# enable CoreMP135 poweroff
++$(call force,CFG_COREMP135_AXP2101,y)

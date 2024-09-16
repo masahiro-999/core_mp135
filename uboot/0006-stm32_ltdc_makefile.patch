@@ -1,0 +1,8 @@
+--- a/drivers/video/stm32/Makefile	2024-05-30 09:54:41.200465560 +0800
++++ b/drivers/video/stm32/Makefile	2024-05-30 09:54:26.804209349 +0800
+@@ -6,4 +6,5 @@
+ #          Yannick Fertre <yannick.fertre@st.com>
+ 
+ obj-${CONFIG_VIDEO_STM32} = stm32_ltdc.o
++obj-${CONFIG_VIDEO_STM32} += lt8618sx.o
+ obj-${CONFIG_VIDEO_STM32_DSI} += stm32_dsi.o

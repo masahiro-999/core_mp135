@@ -1,0 +1,22 @@
+// SPDX-License-Identifier: (GPL-2.0+ OR BSD-3-Clause)
+/*
+ * Copyright (C) STMicroelectronics 2022 - All Rights Reserved
+ * Author: Alexandre Torgue <alexandre.torgue@foss.st.com> for STMicroelectronics.
+ */
+
+&cpu0_opp_table {
+		opp-990000000 {
+			opp-hz = /bits/ 64 <990000000>;
+			opp-microvolt = <1250000>;
+			opp-supported-hw = <0x2>;
+			// st,opp-default;
+		};
+
+		opp-650000000 {
+			opp-hz = /bits/ 64 <650000000>;
+			opp-microvolt = <1250000>;
+			opp-supported-hw = <0x2>;
+			st,opp-default;
+		};
+
+};
