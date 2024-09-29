@@ -1,0 +1,11 @@
+--- a/Makefile	2024-09-22 16:42:35.267752404 +0900
++++ b/Makefile	2024-09-22 16:43:58.551393125 +0900
+@@ -403,7 +403,7 @@
+ CPPFLAGS		=	${DEFINES} ${INCLUDES} ${MBEDTLS_INC} -nostdinc	\
+ 				$(ERRORS) $(WARNINGS)
+ ASFLAGS			+=	$(CPPFLAGS) $(ASFLAGS_$(ARCH))			\
+-				-ffreestanding -Wa,--fatal-warnings
++				-ffreestanding -Wa,--fatal-warnings -Wa,--noexecstack
+ TF_CFLAGS		+=	$(CPPFLAGS) $(TF_CFLAGS_$(ARCH))		\
+ 				-ffunction-sections -fdata-sections		\
+ 				-ffreestanding -fno-builtin -fno-common		\

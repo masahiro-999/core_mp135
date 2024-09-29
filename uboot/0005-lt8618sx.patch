@@ -1,0 +1,131 @@
+--- a/drivers/video/stm32/lt8618sx.c	2024-05-30 11:07:02.419564625 +0800
++++ b/drivers/video/stm32/lt8618sx.c	2024-05-30 11:02:49.594873939 +0800
+@@ -0,0 +1,128 @@
++/*
++* SPDX-FileCopyrightText: 2024 M5Stack Technology CO LTD
++*
++* SPDX-License-Identifier: MIT
++*/
++
++#include <command.h>
++#include <common.h>
++#include <dm.h>
++#include <errno.h>
++#include <i2c.h>
++#include <linux/delay.h>
++#include <stdlib.h>
++#include <time.h>
++
++#define CHECK_RET(ret)                                                       \
++    do {                                                                     \
++        if ((ret) == 0) {                                                    \
++            printf("Function: %s, Line: %d, success\n", __func__, __LINE__); \
++        } else {                                                             \
++            printf("Function: %s, Line: %d, ret: %d\n", __func__, __LINE__,  \
++                   (ret));                                                   \
++        }                                                                    \
++    } while (0)
++
++struct lt8618sx_bus_t {
++    int chip_id;
++    struct udevice *i2c_dev;
++    int flage;
++};
++static struct lt8618sx_bus_t lt8618_bus;
++static int lt8618_apply_bus(void) {
++    int ret;
++
++    // apply i2c
++    lt8618_bus.chip_id = 0x39;
++    ret = i2c_get_chip_for_busnum(0, lt8618_bus.chip_id, 1, &lt8618_bus.i2c_dev);
++
++    ret = i2c_set_chip_offset_len(lt8618_bus.i2c_dev, 1);
++
++    lt8618_bus.flage = 0;
++    return lt8618_bus.flage;
++}
++static int lt8618_release_bus(void) {
++
++    lt8618_bus.flage = -1;
++    return lt8618_bus.flage;
++}
++
++const uint8_t hdmi_init5[] = {
++    0xff, 0x81, 0x30, 0x00, 0x02, 0x66, 0x0a, 0x06, 0x15, 0x06, 0x4e, 0xa8,
++    0xff, 0x82, 0x1b, 0x77, 0x1c, 0xec, 0xff, 0x80, 0xee, 0x01, 0x11, 0x00,
++    0x13, 0xf1, 0x13, 0xf9, 0x0a, 0x80, 0xff, 0x82, 0x45, 0x70, 0x4f, 0x40,
++    0x50, 0x00, 0x47, 0x07, 0xff, 0x82, 0xd6, 0x8e, 0xd7, 0x04, 0xff, 0x84,
++    0x06, 0x08, 0x07, 0x10, 0x09, 0x00, 0x0f, 0x2b, 0x34, 0xd5, 0x35, 0x00,
++    0x36, 0x18, 0x37, 0x00, 0x3c, 0x21, 0xff, 0x82, 0xde, 0x00, 0xde, 0xc0,
++    0xff, 0x81, 0x23, 0x40, 0x24, 0x64, 0x26, 0x55, 0x29, 0x04, 0x4d, 0x00,
++    0x27, 0x60, 0x28, 0x00, 0x25, 0x01, 0x2c, 0x94, 0x2d, 0x99};
++const uint8_t hdmi_init6[] = {0x25, 0x00, 0x2c, 0x9e, 0x2d, 0x99, 0x28, 0x88,
++                              0x4d, 0x09, 0x27, 0x66, 0x2a, 0x00, 0x2a, 0x20};
++const uint8_t hdmi_init7[] = {0xff, 0x80, 0x16, 0xf1, 0x18, 0xdc, 0x18, 0xfc,
++                              0x16, 0xf3, 0x16, 0xe3, 0x16, 0xf3, 0xff, 0x82};
++const uint8_t hdmi_init8[] = {
++    0xb9, 0x00, 0xff, 0x84, 0x43, 0x31, 0x44, 0x10, 0x45, 0x2a, 0x47, 0x04,
++    0x10, 0x2c, 0x12, 0x64, 0x3d, 0x0a, 0xff, 0x80, 0x11, 0x00, 0x13, 0xf1,
++    0x13, 0xf9, 0xff, 0x81, 0x30, 0xea, 0x31, 0x44, 0x32, 0x4a, 0x33, 0x0b,
++    0x34, 0x00, 0x35, 0x00, 0x36, 0x00, 0x37, 0x44, 0x3f, 0x0f, 0x40, 0xa0,
++    0x41, 0xa0, 0x42, 0xa0, 0x43, 0xa0, 0x44, 0x0a};
++static void writeRegisterSet(const uint8_t *reg_data_pair, size_t len) {
++    int ret;
++    for (int i = 0; i < len; i += 2) {
++        ret = dm_i2c_write(lt8618_bus.i2c_dev, reg_data_pair[i],
++                           &reg_data_pair[i + 1], 1);
++    }
++}
++
++static void init_hdmi_chip(void) {
++    int ret;
++    unsigned char linebuf[6];
++
++    linebuf[0] = 0x80;
++    linebuf[1] = 0x01;
++
++    ret = dm_i2c_write(lt8618_bus.i2c_dev, 0xff, &linebuf[0], 1);
++    ret = dm_i2c_write(lt8618_bus.i2c_dev, 0xee, &linebuf[1], 1);
++    ret = dm_i2c_read(lt8618_bus.i2c_dev, 0x00, &linebuf[0], 1);
++    ret = dm_i2c_read(lt8618_bus.i2c_dev, 0x01, &linebuf[1], 1);
++    ret = dm_i2c_read(lt8618_bus.i2c_dev, 0x02, &linebuf[2], 1);
++
++    // printf("chipid: 0x%02x 0x%02x 0x%02x\n", linebuf[0], linebuf[1],
++    // linebuf[2]);
++    writeRegisterSet(hdmi_init5, sizeof(hdmi_init5));
++
++    dm_i2c_read(lt8618_bus.i2c_dev, 0x2b, &linebuf[3], 1);
++    // printf("reg 0x2b : 0x%02x\n", linebuf[3]);
++    linebuf[3] &= 0xfd;
++    dm_i2c_write(lt8618_bus.i2c_dev, 0x2b, &linebuf[3], 1);
++
++    dm_i2c_read(lt8618_bus.i2c_dev, 0x2e, &linebuf[4], 1);
++    // printf("reg 0x2e : 0x%02x\n", linebuf[4]);
++    linebuf[4] &= 0xfe;
++    dm_i2c_write(lt8618_bus.i2c_dev, 0x2e, &linebuf[4], 1);
++
++    writeRegisterSet(hdmi_init6, sizeof(hdmi_init6));
++    for (int i = 0; i < 5; i++) {
++        mdelay(10);
++        writeRegisterSet(hdmi_init7, sizeof(hdmi_init7));
++        dm_i2c_read(lt8618_bus.i2c_dev, 0x15, &linebuf[3], 1);
++        linebuf[3] &= 0x80;
++        dm_i2c_read(lt8618_bus.i2c_dev, 0xea, &linebuf[4], 1);
++        dm_i2c_read(lt8618_bus.i2c_dev, 0xeb, &linebuf[5], 1);
++        linebuf[5] &= 0x80;
++
++        // printf("status: 0x%02x 0x%02x 0x%02x\n", linebuf[3], linebuf[4],
++        // linebuf[5]);
++        if (linebuf[3] && linebuf[5] && (linebuf[4] != 0xff)) {
++            writeRegisterSet(hdmi_init8, sizeof(hdmi_init8));
++            break;
++        }
++    }
++}
++
++void lt8618sx_init(void)
++{
++    lt8618_apply_bus();
++    init_hdmi_chip();
++    lt8618_release_bus();
++}

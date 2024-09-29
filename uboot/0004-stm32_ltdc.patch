@@ -1,0 +1,38 @@
+--- a/drivers/video/stm32/stm32_ltdc.c	2024-05-30 15:55:33.829538221 +0800
++++ b/drivers/video/stm32/stm32_ltdc.c	2024-05-30 15:55:57.078126975 +0800
+@@ -494,6 +494,8 @@
+ 	setbits_le32(priv->regs + LTDC_L1CR, LXCR_LEN);
+ }
+ 
++extern void lt8618sx_init(void);
++
+ static int stm32_ltdc_probe(struct udevice *dev)
+ {
+ 	struct video_uc_plat *uc_plat = dev_get_uclass_plat(dev);
+@@ -596,7 +598,7 @@
+ 	}
+ 
+ 	/* TODO Below parameters are hard-coded for the moment... */
+-	priv->l2bpp = VIDEO_BPP16;
++	priv->l2bpp = VIDEO_BPP32;
+ 	priv->bg_col_argb = 0xFFFFFFFF; /* white no transparency */
+ 	priv->crop_x = 0;
+ 	priv->crop_y = 0;
+@@ -634,7 +636,7 @@
+ 			return ret;
+ 		}
+ 	}
+-
++	lt8618sx_init();
+ 	video_set_flush_dcache(dev, true);
+ 
+ 	return 0;
+@@ -648,7 +650,7 @@
+ 			CONFIG_VIDEO_STM32_MAX_YRES *
+ 			(CONFIG_VIDEO_STM32_MAX_BPP >> 3);
+ 	/* align framebuffer on kernel MMU_SECTION_SIZE = max 2MB for LPAE */
+-	uc_plat->align = SZ_2M;
++	uc_plat->align = SZ_4M;
+ 	dev_dbg(dev, "frame buffer max size %d bytes align %x\n",
+ 		uc_plat->size, uc_plat->align);
+ 

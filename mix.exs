@@ -77,7 +77,7 @@ defmodule CustomStm32mp135d.MixProject do
 
   defp description do
     """
-    Nerves System - OSD32MP1
+    Nerves System - M5Stack MP135
     """
   end
 
@@ -104,6 +104,8 @@ defmodule CustomStm32mp135d.MixProject do
     [
       "fwup_include",
       "linux",
+      "m5stack",
+      "patches",
       "rootfs_overlay",
       "uboot",
       "CHANGELOG.md",
@@ -113,7 +115,6 @@ defmodule CustomStm32mp135d.MixProject do
       "LICENSE",
       "mix.exs",
       "nerves_defconfig",
-      "osd32mp1-brk.dts",
       "post-build.sh",
       "post-createfs.sh",
       "README.md",
@@ -137,7 +138,7 @@ defmodule CustomStm32mp135d.MixProject do
     if function_exported?(Mix, :target, 1) do
       apply(Mix, :target, [:target])
     else
-      System.put_env("MIX_TARGET", "osd32mp1")
+      System.put_env("MIX_TARGET", "custom_stm32mp135d")
     end
   end
 end

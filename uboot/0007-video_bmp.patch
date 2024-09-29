@@ -1,0 +1,11 @@
+--- a/drivers/video/video_bmp.c	2024-05-30 16:07:33.809792598 +0800
++++ b/drivers/video/video_bmp.c	2024-05-30 16:07:30.741728898 +0800
+@@ -348,7 +348,7 @@
+ 					*(fb++) = *(bmap++);
+ 					*(fb++) = *(bmap++);
+ 					*(fb++) = *(bmap++);
+-					*(fb++) = 0;
++					*(fb++) = 0xff;
+ 				}
+ 			}
+ 			fb -= priv->line_length + width * (bpix / 8);
