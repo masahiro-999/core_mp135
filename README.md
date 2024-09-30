@@ -23,14 +23,27 @@ This is the Nerves System configuration for the
 | Bluetooth            | No                              |
 | Audio                | TBD                             |
 
-# WARNING
+# Project Status
 
-This system is still considered in alpha state, expect backwards incompatible changes
-to be made
+This project is still a work in progress, and any issues will be tracked and resolved through GitHub. While I’m passionate about Nerves, I’m not an expert on Core MP135, so any help with fixes would be greatly appreciated. Contributions through pull requests are very welcome!
+
+
 
 # Using
 
-TBD
+create a project with `mix nerves.new`
+
+add `{:core_mp135, github: "masahiro-999/core_mp135", runtime: false, targets: :core_mp135},` in deps in mix.exs
+
+export `MIX_TARGET=core_mp135`.
+
+run `mix deps.get`
+
+run `mix firmware`
+
+ See the [Getting started
+guide](https://hexdocs.pm/nerves/getting-started.html#creating-a-new-nerves-app)
+for more information.
 
 ## Provisioning devices
 
