@@ -2,7 +2,7 @@ defmodule CustomStm32mp135d.MixProject do
   use Mix.Project
 
   @github_organization "masahiro-999"
-  @app :custom_stm32mp135d
+  @app :core_mp135
   @source_url "https://github.com/#{@github_organization}/#{@app}"
   @version Path.join(__DIR__, "VERSION")
            |> File.read!()
@@ -138,7 +138,7 @@ defmodule CustomStm32mp135d.MixProject do
     if function_exported?(Mix, :target, 1) do
       apply(Mix, :target, [:target])
     else
-      System.put_env("MIX_TARGET", "custom_stm32mp135d")
+      System.put_env("MIX_TARGET", "core_mp135")
     end
   end
 end
