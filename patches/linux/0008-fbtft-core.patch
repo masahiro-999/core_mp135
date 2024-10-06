@@ -1,0 +1,11 @@
+--- a/drivers/staging/fbtft/fbtft-core.c	2024-04-15 11:41:30.787548227 +0800
++++ b/drivers/staging/fbtft/fbtft-core.c	2024-04-15 11:38:53.528583466 +0800
+@@ -573,6 +573,8 @@
+ 	/* override driver values? */
+ 	if (pdata->fps)
+ 		fps = pdata->fps;
++   if (pdata->display.bpp)
++       bpp = pdata->display.bpp;
+ 	if (pdata->txbuflen)
+ 		txbuflen = pdata->txbuflen;
+ 	if (pdata->display.init_sequence)
