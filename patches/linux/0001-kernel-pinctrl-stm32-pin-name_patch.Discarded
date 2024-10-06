@@ -1,0 +1,28 @@
+--- a/drivers/pinctrl/stm32/pinctrl-stm32.c	2024-05-23 17:19:25.563792460 +0800
++++ b/drivers/pinctrl/stm32/pinctrl-stm32.c	2024-05-23 17:20:09.596176561 +0800
+@@ -1385,16 +1385,16 @@
+ 		}
+ 	}
+ 
+-	names = devm_kcalloc(dev, npins, sizeof(char *), GFP_KERNEL);
+-	for (i = 0; i < npins; i++) {
+-		stm32_pin = stm32_pctrl_get_desc_pin_from_gpio(pctl, bank, i);
+-		if (stm32_pin && stm32_pin->pin.name)
+-			names[i] = devm_kasprintf(dev, GFP_KERNEL, "%s", stm32_pin->pin.name);
+-		else
+-			names[i] = NULL;
+-	}
++	// names = devm_kcalloc(dev, npins, sizeof(char *), GFP_KERNEL);
++	// for (i = 0; i < npins; i++) {
++	// 	stm32_pin = stm32_pctrl_get_desc_pin_from_gpio(pctl, bank, i);
++	// 	if (stm32_pin && stm32_pin->pin.name)
++	// 		names[i] = devm_kasprintf(dev, GFP_KERNEL, "%s", stm32_pin->pin.name);
++	// 	else
++	// 		names[i] = NULL;
++	// }
+ 
+-	bank->gpio_chip.names = (const char * const *)names;
++	bank->gpio_chip.names = NULL;
+ 
+ 	err = gpiochip_add_data(&bank->gpio_chip, bank);
+ 	if (err) {
