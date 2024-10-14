@@ -348,6 +348,12 @@
 		// };
 	};
 
+	hdmi: lt8618sx@39 {
+		compatible = "lt8618sx";
+		reg = <0x39>;
+		status = "okay";
+	};
+
 };
 
 //enclosure i2c
