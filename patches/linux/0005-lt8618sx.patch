@@ -1,0 +1,171 @@
+diff -ruN a/drivers/gpu/drm/stm/Kconfig b/drivers/gpu/drm/stm/Kconfig
+--- a/drivers/gpu/drm/stm/Kconfig	2024-10-13 21:04:44.201160774 +0900
++++ b/drivers/gpu/drm/stm/Kconfig	2024-10-13 21:49:53.839789439 +0900
+@@ -21,3 +21,9 @@
+ 	select DRM_DW_MIPI_DSI
+ 	help
+ 	  Choose this option for MIPI DSI support on STMicroelectronics SoC.
++
++config I2C_LT8618SX
++    tristate "LT8618SX HDMI Controller I2C driver"
++    depends on I2C
++    help
++      Support for the LT8618SX HDMI controller over I2C.
+diff -ruN a/drivers/gpu/drm/stm/Makefile b/drivers/gpu/drm/stm/Makefile
+--- a/drivers/gpu/drm/stm/Makefile	2024-10-13 16:04:01.506008883 +0900
++++ b/drivers/gpu/drm/stm/Makefile	2024-10-13 21:50:23.591279098 +0900
+@@ -6,3 +6,5 @@
+ obj-$(CONFIG_DRM_STM_DSI) += dw_mipi_dsi-stm.o
+ 
+ obj-$(CONFIG_DRM_STM) += stm-drm.o
++
++obj-$(CONFIG_I2C_LT8618SX) += lt8618sx.o
+diff -ruN a/drivers/gpu/drm/stm/lt8618sx.c b/drivers/gpu/drm/stm/lt8618sx.c
+--- a/drivers/gpu/drm/stm/lt8618sx.c	1970-01-01 09:00:00.000000000 +0900
++++ b/drivers/gpu/drm/stm/lt8618sx.c	2024-10-14 09:43:52.905359504 +0900
+@@ -0,0 +1,145 @@
++/*
++* SPDX-FileCopyrightText: 2024 M5Stack Technology CO LTD
++*
++* SPDX-License-Identifier: MIT
++*
++* Modifications made by @GeekMasahiro, 2024
++*/
++
++#include <linux/module.h>
++#include <linux/i2c.h>
++#include <linux/of.h>
++#include <linux/delay.h>
++#include <linux/err.h>
++#include <linux/regmap.h>
++#include <linux/delay.h>
++
++#define DRIVER_NAME "lt8618sx"
++
++static int lt8618sx_read_reg(struct i2c_client *client, u8 reg, u8 *val)
++{
++    int ret;
++    ret = i2c_smbus_read_byte_data(client, reg);
++    if (ret < 0) {
++        dev_err(&client->dev, "Failed to read register 0x%02x\n", reg);
++        return ret;
++    }
++    *val = ret;
++    return 0;
++}
++
++static int lt8618sx_write_reg(struct i2c_client *client, u8 reg, u8 val)
++{
++    int ret;
++    ret = i2c_smbus_write_byte_data(client, reg, val);
++    if (ret < 0)
++        dev_err(&client->dev, "Failed to write 0x%02x to register 0x%02x\n", val, reg);
++    return ret;
++}
++
++const uint8_t hdmi_init5[] = {
++    0xff, 0x81, 0x30, 0x00, 0x02, 0x66, 0x0a, 0x06, 0x15, 0x06, 0x4e, 0xa8,
++    0xff, 0x82, 0x1b, 0x77, 0x1c, 0xec, 0xff, 0x80, 0xee, 0x01, 0x11, 0x00,
++    0x13, 0xf1, 0x13, 0xf9, 0x0a, 0x80, 0xff, 0x82, 0x45, 0x70, 0x4f, 0x40,
++    0x50, 0x00, 0x47, 0x07, 0xff, 0x82, 0xd6, 0x8e, 0xd7, 0x04, 0xff, 0x84,
++    0x06, 0x08, 0x07, 0x10, 0x09, 0x00, 0x0f, 0x2b, 0x34, 0xd5, 0x35, 0x00,
++    0x36, 0x18, 0x37, 0x00, 0x3c, 0x21, 0xff, 0x82, 0xde, 0x00, 0xde, 0xc0,
++    0xff, 0x81, 0x23, 0x40, 0x24, 0x64, 0x26, 0x55, 0x29, 0x04, 0x4d, 0x00,
++    0x27, 0x60, 0x28, 0x00, 0x25, 0x01, 0x2c, 0x94, 0x2d, 0x99};
++const uint8_t hdmi_init6[] = {0x25, 0x00, 0x2c, 0x9e, 0x2d, 0x99, 0x28, 0x88,
++                              0x4d, 0x09, 0x27, 0x66, 0x2a, 0x00, 0x2a, 0x20};
++const uint8_t hdmi_init7[] = {0xff, 0x80, 0x16, 0xf1, 0x18, 0xdc, 0x18, 0xfc,
++                              0x16, 0xf3, 0x16, 0xe3, 0x16, 0xf3, 0xff, 0x82};
++const uint8_t hdmi_init8[] = {
++    0xb9, 0x00, 0xff, 0x84, 0x43, 0x31, 0x44, 0x10, 0x45, 0x2a, 0x47, 0x04,
++    0x10, 0x2c, 0x12, 0x64, 0x3d, 0x0a, 0xff, 0x80, 0x11, 0x00, 0x13, 0xf1,
++    0x13, 0xf9, 0xff, 0x81, 0x30, 0xea, 0x31, 0x44, 0x32, 0x4a, 0x33, 0x0b,
++    0x34, 0x00, 0x35, 0x00, 0x36, 0x00, 0x37, 0x44, 0x3f, 0x0f, 0x40, 0xa0,
++    0x41, 0xa0, 0x42, 0xa0, 0x43, 0xa0, 0x44, 0x0a};
++static void writeRegisterSet(struct i2c_client *client, const uint8_t *reg_data_pair, size_t len) {
++    int i;
++    for (i = 0; i < len; i += 2) {
++        lt8618sx_write_reg(client, reg_data_pair[i], reg_data_pair[i + 1]);
++    }
++}
++
++static int init_hdmi_chip(struct i2c_client *client) {
++    unsigned char a, b, c, tmp;
++    int i;
++    lt8618sx_write_reg(client, 0xff, 0x80);
++    lt8618sx_write_reg(client, 0xee, 0x01);
++
++    writeRegisterSet(client, hdmi_init5, sizeof(hdmi_init5));
++
++    lt8618sx_read_reg(client, 0x2b, &tmp);
++    lt8618sx_write_reg(client, 0x2b, tmp & 0xfd);
++
++    lt8618sx_read_reg(client, 0x2e, &tmp);
++    lt8618sx_write_reg(client, 0x2e, tmp & 0xfe);
++
++    writeRegisterSet(client, hdmi_init6, sizeof(hdmi_init6));
++    for (i = 0; i < 5; i++) {
++        mdelay(10);
++        writeRegisterSet(client, hdmi_init7, sizeof(hdmi_init7));
++        lt8618sx_read_reg(client, 0x15, &a);
++        a = a & 0x80;
++        lt8618sx_read_reg(client, 0xea, &b);
++        lt8618sx_read_reg(client, 0xeb, &c);
++        c = c & 0x80;
++        if (a && c && (b != 0xff)) {
++            writeRegisterSet(client, hdmi_init8, sizeof(hdmi_init8));
++            break;
++        }
++    }
++    return 0;
++}
++
++/* I2C probe 関数 */
++static int lt8618sx_probe(struct i2c_client *client, const struct i2c_device_id *id)
++{
++    int ret;
++    u8 device_id;
++
++    dev_info(&client->dev, "Probing LT8618SX HDMI controller at I2C address 0x%02x\n", client->addr);
++
++    init_hdmi_chip(client);
++
++    return 0;
++}
++
++/* I2C remove 関数 */
++static int lt8618sx_remove(struct i2c_client *client)
++{
++    dev_info(&client->dev, "Removing LT8618SX driver\n");
++    return 0;
++}
++
++static const struct i2c_device_id lt8618sx_id[] = {
++    { "lt8618sx", 0 },
++    { }
++};
++MODULE_DEVICE_TABLE(i2c, lt8618sx_id);
++
++static const struct of_device_id lt8618sx_of_match[] = {
++    { .compatible = "lt8618sx", },
++    { }
++};
++MODULE_DEVICE_TABLE(of, lt8618sx_of_match);
++
++static struct i2c_driver lt8618sx_driver = {
++    .driver = {
++        .name = DRIVER_NAME,
++        .of_match_table = lt8618sx_of_match,
++    },
++    .probe = lt8618sx_probe,
++    .remove = lt8618sx_remove,
++    .id_table = lt8618sx_id,
++};
++
++module_i2c_driver(lt8618sx_driver);
++
++MODULE_AUTHOR("@GeekMasahiro");
++MODULE_DESCRIPTION("LT8618SX HDMI Controller I2C Driver");
++MODULE_LICENSE("MIT");
++
++

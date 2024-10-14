@@ -8,15 +8,15 @@ This is the Nerves System configuration for the
 | Feature              | Description                     |
 | -------------------- | ------------------------------- |
 | CPU                  | STM32MP135DAE7@Arm Cortex-A7@1GHz |
-| Memory               | up to 512 MB DRAM                 |
+| Memory               | 512 MB DRAM                 |
 | Storage              | MicroSD card                    |
 | Linux Kernel         | 5.15                             |
-| IEx terminal         | UART `ttySTM0`                  |
+| IEx terminal         | HDMI and USB keyboard (can be changed to UART)|
 | GPIO, I2C, SPI       | Yes - [Elixir Circuits](https://github.com/elixir-circuits) |
 | ADC                  | No                              |
 | PWM                  | Yes, but no Elixir support      |
 | UART                 | ttySTM0 + more via device tree overlay |
-| Coprocessor          | embedded M4 STM32               |
+| LCD                  | Yes                             |
 | Camera               | None                            |
 | Ethernet             | 2x RJ45                         |
 | WiFi                 | No                              |
