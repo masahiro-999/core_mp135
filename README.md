@@ -3,7 +3,8 @@
 This is the Nerves System configuration for the
 [M5CoreMP135](hhttps://docs.m5stack.com/en/core/M5CoreMP135)
 
-![M5CoreMP135](assets/images/m5stackmp135.jpg)
+![M5CoreMP135](https://static-cdn.m5stack.com/resource/docs/products/core/M5CoreMP135/img-e1972b35-73c9-4a6c-a91f-adcd915b7771.webp)
+
 
 | Feature              | Description                     |
 | -------------------- | ------------------------------- |
@@ -33,17 +34,17 @@ This project is still a work in progress, and any issues will be tracked and res
 
 create a project with `mix nerves.new`
 
-add `{:core_mp135, github: "masahiro-999/core_mp135", runtime: false, targets: :core_mp135},` in deps in mix.exs
+add `{:nerves_system_m5stack_core_mp135, "~> 0.0.7", runtime: false, targets: :m5stack_core_mp135}` in deps in mix.exs
 
-export `MIX_TARGET=core_mp135`.
+add `:m5stack_core_mp135` in the `@all_targets` in mix.exs
+
+export `MIX_TARGET=m5stack_core_mp135`.
 
 run `mix deps.get`
 
 run `mix firmware`
 
- See the [Getting started
-guide](https://hexdocs.pm/nerves/getting-started.html#creating-a-new-nerves-app)
-for more information.
+See the [Getting started guide](https://hexdocs.pm/nerves/getting-started.html#creating-a-new-nerves-app)for more information.
 
 ## Provisioning devices
 
