@@ -1,8 +1,8 @@
-defmodule CustomStm32mp135d.MixProject do
+defmodule NervesSystemM5stackCoreMp135.MixProject do
   use Mix.Project
 
   @github_organization "masahiro-999"
-  @app :core_mp135
+  @app :nerves_system_m5stack_core_mp135
   @source_url "https://github.com/#{@github_organization}/#{@app}"
   @version Path.join(__DIR__, "VERSION")
            |> File.read!()
@@ -76,9 +76,7 @@ defmodule CustomStm32mp135d.MixProject do
   end
 
   defp description do
-    """
-    Nerves System - M5Stack MP135
-    """
+    "Nerves System - M5Stack Core MP135"
   end
 
   defp docs do
@@ -138,7 +136,7 @@ defmodule CustomStm32mp135d.MixProject do
     if function_exported?(Mix, :target, 1) do
       apply(Mix, :target, [:target])
     else
-      System.put_env("MIX_TARGET", "core_mp135")
+      System.put_env("MIX_TARGET", "m5stack_core_mp135")
     end
   end
 end
